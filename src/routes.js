@@ -7,7 +7,7 @@ const views = __dirname + "/views/"
 
 const profile ={
     name: "Ale",
-    avatar:"https://avatars.githubusercontent.com/u/9631647?v=4",
+    avatar:"https://github.com/alessandramitie.png",
     "monthly-budget": 3000,
     "days-per-week": 5,
     "hours-per-day": 5,
