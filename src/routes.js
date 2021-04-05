@@ -14,10 +14,18 @@ const profile ={
     "vacation-per-year": 4
 }
 
+const jobs = []
+
 //render é uma função do ejs que entende os caminhos de rotas
 //para pegar as rotas:
 routes.get('/', (req, res) => res.render(views + "index"))
 routes.get('/job', (req, res) => res.render(views + "job"))
+//pegar os dados na requisição
+routes.post('/job', (req, res) => {
+    //req.body = {name: 'asdf', 'daily-hours': '3', 'total-hours': '30'}
+    jobs.push(req.body)
+    return res.redirect('/')
+})
 routes.get('/job/edit', (req, res) => res.render(views + "job-edit"))
 routes.get('/profile', (req, res) => res.render(views + "profile", { profile}))
 //vai enviar o objeto profile

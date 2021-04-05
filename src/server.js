@@ -20,6 +20,9 @@ server.use(express.static("public"))
     //__dirname significa que a aplicação vai até a pasta src
 //})
 
+// configuração para habilitar o uso de req.body:
+server.use(express.urlencoded())
+//urlencoded é uma função do express para a extensão de codificação dos dados, fazendo com que seja habilitado o req.body
 
 //routes
 server.use(routes)
