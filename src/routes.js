@@ -11,7 +11,8 @@ const profile ={
     "monthly-budget": 3000,
     "days-per-week": 5,
     "hours-per-day": 5,
-    "vacation-per-year": 4
+    "vacation-per-year": 4,
+    "value-hour": 75
 }
 
 const jobs = [
@@ -31,12 +32,48 @@ const jobs = [
     }
 ]
 
+function remainingDays (job) {
+    //ajustes no job (cálculo de tempo restante)
+    const remainingDays = (job["total-hours"] / job["daily-hours"]).toFixed()
+        
+    const createdDate = new Date(job.created_at)
+    const dueDay = createdDate.getDate() + Number(remainingDays)
+    //precisa passar o Number pois o toFixed transforma em string
+    //data futura de vencimento em milissegundos:
+    const dueDateInMs = createdDate.setDate(dueDay)
+    //diferença do tempo em milissegundos
+    const timeDiffInMs = dueDateInMs - Date.now()
+    //transformar milissegundos em dias
+    const dayInMs = 1000 * 60 * 60 * 24
+    //difereça de dias que faltam
+    const dayDiff = Math.floor(timeDiffInMs / dayInMs)
+    //restam x dias:
+    return dayDiff
+}
+
+
 //render é uma função do ejs que entende os caminhos de rotas
 //para pegar as rotas:
 routes.get('/', (req, res) => {
-    //ajustes no job (cálculo de tempo restante)
+
+    const updateJobs = jobs.map((job) => {
+    //map é usado para poder retornar algo. Com o forEach não seria possível
+
+        const remaining = remainingDays(job)
+        const status = remaining <=0 ? 'done' : 'progress'
+
+        return {
+            //espalhamento(pegar tudo o que tem no objeto (no caso job) e espalhar no novo objeto)
+            ...job,
+            remaining,
+            status,
+            budget: profile["value-hour"] * job["total-hours"]
+        }
+    })
+
     
-    res.render(views + "index", { jobs })
+    
+    res.render(views + "index", { jobs: updateJobs })
 
 
 })
