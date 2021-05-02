@@ -22,13 +22,26 @@ const Profile = {
         },
 
         update(req, res) {
-        //req.body para pegar os dados:
-        const data = req.body
-        //definir quantas semanas tem no ano:
-        const weeksPerYear = 52
-        //remover as semanas de férias do ano
-        //quantas horas por semana estou trabalhando
-        //total de horas trabalhadas no mes
+            //req.body para pegar os dados:
+            const data = req.body
+            //definir quantas semanas tem no ano:
+            const weeksPerYear = 52
+            //remover as semanas de férias do ano, para pegar quantas semanas tem 1 mês:
+            const weeksPerMonth = (weeksPerYear - data["vacation-per-year"]) / 12
+            //quantas horas por semana estou trabalhando
+            const weekTotalHours = data["hours-per-day"] * data["days-per-week"]
+            //total de horas trabalhadas no mes
+            const monthlyTotalHours = weekTotalHours * weeksPerMonth
+            // qual será o valor da minha hora:
+            const valueHour = data["monthly-budget"] / monthlyTotalHours
+
+            Profile.data = {
+                ...Profile.data,
+                ...req.body,
+                "value-hour": valueHour
+            }
+
+            return res.redirect('/profile')
         }
     }
     
@@ -93,6 +106,21 @@ const Job = {
                 created_at: Date.now() //atribuindo uma nova data a partir da criação
             })
             return res.redirect('/')
+        },
+
+        show(req, res) {
+
+            const jobId = req.params.id
+
+            //buscar dentro do array: para cada um dos dados vai rodar uma função e se for o valor, vai atribuir na const
+            const job = Job.data.find(job => Number(job.id) === Number(jobId))
+
+            if (!job) {
+                return res.send('Job not found!')
+            }
+
+
+            return res.render(views + "job-edit", {job})
         }
     },
     services: {
@@ -123,7 +151,7 @@ routes.get('/', Job.controllers.index)
 //pegar os dados na requisição:
 routes.get('/job', Job.controllers.create)
 routes.post('/job', Job.controllers.save)
-routes.get('/job/edit', (req, res) => res.render(views + "job-edit"))
+routes.get('/job/:id', Job.controllers.show)
 //vai enviar o objeto profile:
 routes.get('/profile', Profile.controllers.index)
 routes.post('/profile', Profile.controllers.update)
