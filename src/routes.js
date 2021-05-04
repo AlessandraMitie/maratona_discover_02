@@ -83,7 +83,7 @@ const Job = {
                 }
             })
             
-            res.render(views + "index", { jobs: updatedJobs })
+            return res.render(views + "index", { jobs: updatedJobs })
         },
 
         create(req, res) {
@@ -115,13 +115,50 @@ const Job = {
             //buscar dentro do array: para cada um dos dados vai rodar uma função e se for o valor, vai atribuir na const
             const job = Job.data.find(job => Number(job.id) === Number(jobId))
 
+            //se nao tiver nada
             if (!job) {
                 return res.send('Job not found!')
             }
 
             job.budget = Job.services.calculateBudget(job, Profile.data["value-hour"])
 
-            return res.render(views + "job-edit", {job})
+            return res.render(views + "job-edit", { job })
+        },
+
+        update(req, res) {
+            const jobId = req.params.id
+
+            //buscar dentro do array: para cada um dos dados vai rodar uma função e se for o valor, vai atribuir na const
+            const job = Job.data.find(job => Number(job.id) === Number(jobId))
+
+            if (!job) {
+                return res.send('Job not found!')
+            }
+
+            const updatedJob = {
+                ...job,
+                //sobrescrever name
+                name: req.body.name,
+                "total-hours": req.body["total-hours"],
+                "daily-hours": req.body["daily-hours"],
+            }
+
+            Job.data = Job.data.map(job => {
+                if(Number(job.id) === Number(jobId)) {
+                    job = updatedJob
+                }
+                return job
+            })
+            
+            res.redirect('/job/' + jobId)
+        },
+
+        delete(req, res) {
+            const jobId= req.params.id
+            //o que retornar false vai ser tirado do filtro
+            Job.data = Job.data.filter(job => Number(job.id) !== Number(jobId))
+
+            return res.redirect('/')
         }
     },
     services: {
@@ -143,7 +180,7 @@ const Job = {
             //restam x dias:
             return dayDiff
         },
-        calcuateBudget: (job, valueHour) => valueHour * job["total-hours"]
+        calculateBudget: (job, valueHour) => valueHour * job["total-hours"]
     }
 }
 
@@ -154,6 +191,8 @@ routes.get('/', Job.controllers.index)
 routes.get('/job', Job.controllers.create)
 routes.post('/job', Job.controllers.save)
 routes.get('/job/:id', Job.controllers.show)
+routes.post('/job/:id', Job.controllers.update)
+routes.post('/job/delete/:id', Job.controllers.delete)
 //vai enviar o objeto profile:
 routes.get('/profile', Profile.controllers.index)
 routes.post('/profile', Profile.controllers.update)
