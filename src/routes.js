@@ -3,8 +3,6 @@ const express = require('express');
 const routes = express.Router()
 //express.Router() é uma funcionalidade que vai devolver um objeto para a const routes
 
-const views = __dirname + "/views/"
-
 const Profile = {
     data: {
         name: "Ale",
@@ -18,7 +16,7 @@ const Profile = {
 
     controllers: {
         index(req, res) {
-            return res.render(views + "profile", { profile: Profile.data })
+            return res.render("profile", { profile: Profile.data })
         },
 
         update(req, res) {
@@ -83,17 +81,17 @@ const Job = {
                 }
             })
             
-            return res.render(views + "index", { jobs: updatedJobs })
+            return res.render("index", { jobs: updatedJobs })
         },
 
         create(req, res) {
-            return res.render(views + "job")
+            return res.render("job")
         },
 
         save(req, res) {
             //req.body = {name: 'asdf', 'daily-hours': '3', 'total-hours': '30'}
          
-            const lastId = Job.data[Job.data.length - 1]?.id || 1;
+            const lastId = Job.data[Job.data.length - 1]?.id || 0;
             //se a condição achar o objeto no array, então vai pegar o id dele e atribuir em lastId
             // || significa ou
             //se a condição não achar, então vai ser o número 1
@@ -122,7 +120,7 @@ const Job = {
 
             job.budget = Job.services.calculateBudget(job, Profile.data["value-hour"])
 
-            return res.render(views + "job-edit", { job })
+            return res.render("job-edit", { job })
         },
 
         update(req, res) {
