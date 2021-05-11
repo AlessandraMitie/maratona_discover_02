@@ -3,153 +3,17 @@ const express = require('express');
 const routes = express.Router();
 //express.Router() é uma funcionalidade que vai devolver um objeto para a const routes
 const ProfileController = require('./controllers/ProfileController')
-
-//objeto literal
-const Job = {
-    data: [
-        {
-            id: 1,
-            name: "Pizzaria Guloso",
-            "daily-hours": 2,
-            "total-hours": 1,
-            created_at: Date.now()
-        },
-        {
-            id: 2,
-            name: "OneTwo Project",
-            "daily-hours": 3,
-            "total-hours": 47,
-            created_at: Date.now()
-        }
-    ],
-    //objeto para controlar
-    controllers: {
-        index(req, res) {
-            const updatedJobs = Job.data.map((job) => {
-            //map é usado para poder retornar algo. Com o forEach não seria possível
-            
-                const remaining = Job.services.remainingDays(job)
-                const status = remaining <=0 ? 'done' : 'progress'
-            
-                return {
-                //espalhamento(pegar tudo o que tem no objeto (no caso job) e espalhar no novo objeto)
-                    ...job,
-                    remaining,
-                    status,
-                    budget: Job.services.calculateBudget(job, Profile.data["value-hour"])
-                }
-            })
-            
-            return res.render("index", { jobs: updatedJobs })
-        },
-
-        create(req, res) {
-            return res.render("job")
-        },
-
-        save(req, res) {
-            //req.body = {name: 'asdf', 'daily-hours': '3', 'total-hours': '30'}
-         
-            const lastId = Job.data[Job.data.length - 1]?.id || 0;
-            //se a condição achar o objeto no array, então vai pegar o id dele e atribuir em lastId
-            // || significa ou
-            //se a condição não achar, então vai ser o número 1
-        
-            Job.data.push({
-                id: lastId + 1,
-                name: req.body.name,
-                "daily-hours": req.body["daily-hours"],
-                "total-hours": req.body["total-hours"],
-                created_at: Date.now() //atribuindo uma nova data a partir da criação
-            })
-            return res.redirect('/')
-        },
-
-        show(req, res) {
-
-            const jobId = req.params.id
-
-            //buscar dentro do array: para cada um dos dados vai rodar uma função e se for o valor, vai atribuir na const
-            const job = Job.data.find(job => Number(job.id) === Number(jobId))
-
-            //se nao tiver nada
-            if (!job) {
-                return res.send('Job not found!')
-            }
-
-            job.budget = Job.services.calculateBudget(job, Profile.data["value-hour"])
-
-            return res.render("job-edit", { job })
-        },
-
-        update(req, res) {
-            const jobId = req.params.id
-
-            //buscar dentro do array: para cada um dos dados vai rodar uma função e se for o valor, vai atribuir na const
-            const job = Job.data.find(job => Number(job.id) === Number(jobId))
-
-            if (!job) {
-                return res.send('Job not found!')
-            }
-
-            const updatedJob = {
-                ...job,
-                //sobrescrever name
-                name: req.body.name,
-                "total-hours": req.body["total-hours"],
-                "daily-hours": req.body["daily-hours"],
-            }
-
-            Job.data = Job.data.map(job => {
-                if(Number(job.id) === Number(jobId)) {
-                    job = updatedJob
-                }
-                return job
-            })
-            
-            res.redirect('/job/' + jobId)
-        },
-
-        delete(req, res) {
-            const jobId= req.params.id
-            //o que retornar false vai ser tirado do filtro
-            Job.data = Job.data.filter(job => Number(job.id) !== Number(jobId))
-
-            return res.redirect('/')
-        }
-    },
-    services: {
-        remainingDays (job) {
-            //ajustes no job (cálculo de tempo restante)
-            const remainingDays = (job["total-hours"] / job["daily-hours"]).toFixed()
-                
-            const createdDate = new Date(job.created_at)
-            const dueDay = createdDate.getDate() + Number(remainingDays)
-            //precisa passar o Number pois o toFixed transforma em string
-            //data futura de vencimento em milissegundos:
-            const dueDateInMs = createdDate.setDate(dueDay)
-            //diferença do tempo em milissegundos
-            const timeDiffInMs = dueDateInMs - Date.now()
-            //transformar milissegundos em dias
-            const dayInMs = 1000 * 60 * 60 * 24
-            //difereça de dias que faltam
-            const dayDiff = Math.floor(timeDiffInMs / dayInMs)
-            //restam x dias:
-            return dayDiff
-        },
-        calculateBudget: (job, valueHour) => valueHour * job["total-hours"]
-    }
-}
+const JobController = require('./controllers/JobController')
 
 //render é uma função do ejs que entende os caminhos de rotas
 //para pegar as rotas:
-routes.get('/', Job.controllers.index)
+routes.get('/', JobController.index)
 //pegar os dados na requisição:
-routes.get('/job', Job.controllers.create)
-routes.post('/job', Job.controllers.save)
-routes.get('/job/:id', Job.controllers.show)
-routes.post('/job/:id', Job.controllers.update)
-routes.post('/job/delete/:id', Job.controllers.delete)
+routes.get('/job', JobController.create)
+routes.post('/job', JobController.save)
+routes.get('/job/:id', JobController.show)
+routes.post('/job/:id', JobController.update)
+routes.post('/job/delete/:id', JobController.delete)
 //vai enviar o objeto profile:
 routes.get('/profile', ProfileController.index)
 routes.post('/profile', ProfileController.update)
