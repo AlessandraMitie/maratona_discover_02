@@ -4,10 +4,11 @@ const routes = express.Router();
 //express.Router() é uma funcionalidade que vai devolver um objeto para a const routes
 const ProfileController = require('./controllers/ProfileController')
 const JobController = require('./controllers/JobController')
+const DashboardController = require('./controllers/DashoboardController')
 
 //render é uma função do ejs que entende os caminhos de rotas
 //para pegar as rotas:
-routes.get('/', JobController.index)
+routes.get('/', DashboardController.index)
 //pegar os dados na requisição:
 routes.get('/job', JobController.create)
 routes.post('/job', JobController.save)
