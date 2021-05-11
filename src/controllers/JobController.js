@@ -51,25 +51,29 @@ module.exports = {
     show(req, res) {
 
         const jobId = req.params.id
+        const jobs = Job.get()
 
         //buscar dentro do array: para cada um dos dados vai rodar uma função e se for o valor, vai atribuir na const
-        const job = Job.data.find(job => Number(job.id) === Number(jobId))
+        const job = jobs.find(job => Number(job.id) === Number(jobId))
 
         //se nao tiver nada
         if (!job) {
             return res.send('Job not found!')
         }
 
-        job.budget = Job.services.calculateBudget(job, Profile.data["value-hour"])
+        const profile = Profile.get()
+
+        job.budget = JobUtils.calculateBudget(job, profile["value-hour"])
 
         return res.render("job-edit", { job })
     },
 
     update(req, res) {
         const jobId = req.params.id
+        const jobs = Job.get()
 
         //buscar dentro do array: para cada um dos dados vai rodar uma função e se for o valor, vai atribuir na const
-        const job = Job.data.find(job => Number(job.id) === Number(jobId))
+        const job = jobs.find(job => Number(job.id) === Number(jobId))
 
         if (!job) {
             return res.send('Job not found!')
@@ -83,21 +87,26 @@ module.exports = {
             "daily-hours": req.body["daily-hours"],
         }
 
-        Job.data = Job.data.map(job => {
+        const newJobs = jobs.map(job => {
             if(Number(job.id) === Number(jobId)) {
                 job = updatedJob
             }
             return job
         })
         
+        Job.update(newJobs)
+
         res.redirect('/job/' + jobId)
     },
 
     delete(req, res) {
         const jobId= req.params.id
-        //o que retornar false vai ser tirado do filtro
-        Job.data = Job.data.filter(job => Number(job.id) !== Number(jobId))
+        //const jobs = Job.get()
 
+        //o que retornar false vai ser tirado do filtro
+        //Job.data = jobs.filter(job => Number(job.id) !== Number(jobId))
+
+        Job.delete(jobId)
         return res.redirect('/')
     }
-},
+}
