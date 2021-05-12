@@ -16,13 +16,14 @@ module.exports = {
         // || significa ou
         //se a condição não achar, então vai ser o número 1
     
-        jobs.push({
+        Job.create({
             id: lastId + 1,
             name: req.body.name,
             "daily-hours": req.body["daily-hours"],
             "total-hours": req.body["total-hours"],
             created_at: Date.now() //atribuindo uma nova data a partir da criação
-        })
+        });
+
         return res.redirect('/')
     },
 
