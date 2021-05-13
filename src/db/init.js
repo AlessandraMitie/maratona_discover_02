@@ -32,14 +32,16 @@ const initDb = {
             monthly_budget, 
             days_per_week, 
             hours_per_day, 
-            vacation_per_year
+            vacation_per_year,
+            value_hour
         ) VALUES (
             "Alessandra",
             "https://github.com/alessandramitie.png",
             3000,
             5,
             5,
-            4
+            4,
+            52
         );`)
 
         await db.run(`INSERT INTO jobs (
