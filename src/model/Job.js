@@ -35,12 +35,26 @@ module.exports = {
         }))
     },
 
-    update(newJob){
-        data = newJob
+    async update(updatedJob, jobd){
+        const db = await Database()
+
+        db.run(`UPDATE jobs SET
+        name = "${updatedJob.name}",
+        daily_hours = ${updatedJob["daily-hours"]},
+        total_hours = ${updatedJob["total-hours"]},
+        created_at = ${updatedJob.created_at}
+        WHERE id = ${jobId}
+        `)
+
+        await db.close()
     },
 
-    delete(id){
-        data = data.filter(job => Number(job.id) !== Number(id))
+    async delete(id){
+        const db = await Database()
+
+        await db.run(`DELETE FROM jobs WHERE id = ${id}`)
+
+        await db.close()
     },
 
     async create(newJob){
